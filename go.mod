@@ -3,12 +3,12 @@ module github.com/slidebolt/plugin-jellyfin
 go 1.26.1
 
 require (
-	github.com/slidebolt/sb-contract v1.0.12
-	github.com/slidebolt/sb-domain v1.0.24
+	github.com/slidebolt/sb-contract v1.0.13
+	github.com/slidebolt/sb-domain v1.0.25
 	github.com/slidebolt/sb-media-sdk v1.0.5
 	github.com/slidebolt/sb-messenger-sdk v1.0.9
 	github.com/slidebolt/sb-runtime v1.0.9
-	github.com/slidebolt/sb-storage-sdk v1.0.8
+	github.com/slidebolt/sb-storage-sdk v1.0.9
 )
 
 require (

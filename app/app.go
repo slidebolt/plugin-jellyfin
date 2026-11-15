@@ -63,10 +63,12 @@ func (a *App) Hello() contract.HelloResponse {
 		Description: "Supplies media libraries, catalog items, artwork, playback streams, sessions, and player controls.",
 		Fields:      []string{"url", "token", "refresh_interval"}, Activation: contract.ResourceActivation{Mode: contract.ResourceActivationConfigured, Fields: []string{"url", "token"}},
 	}}
+	definitions := contract.DescribePlugin("Jellyfin", "Supplies Jellyfin media catalogs, artwork, direct streams, sessions, and generic player controls.", "media_library", "media_player", "media_server", "media_session")
+	definitions.Collections = []contract.CollectionDefinition{{ID: "sessions", Name: "Playback sessions", Description: "Playback that is active on the media server now.", EntityTypes: []string{"media_session"}, Mode: contract.CollectionAuthoritativeSnapshot, OnMissing: contract.CollectionMissingDelete}}
 	return contract.HelloResponse{
 		ID: PluginID, Kind: contract.KindPlugin, ContractVersion: contract.ContractVersion,
 		DependsOn:   []string{"messenger", "storage"},
-		Definitions: contract.DescribePlugin("Jellyfin", "Supplies Jellyfin media catalogs, artwork, direct streams, sessions, and generic player controls.", "media_library", "media_player", "media_server", "media_session"),
+		Definitions: definitions,
 		Setup:       setup,
 	}
 }

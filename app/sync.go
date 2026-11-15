@@ -10,6 +10,7 @@ import (
 
 	"github.com/slidebolt/plugin-jellyfin/internal/jellyfin"
 	domain "github.com/slidebolt/sb-domain"
+	storage "github.com/slidebolt/sb-storage-sdk"
 )
 
 var playerCommands = []string{"media_play", "media_pause", "media_stop", "media_seek", "media_next_track", "media_previous_track", "media_set_volume", "media_mute"}
@@ -88,6 +89,7 @@ func (a *App) syncSessions(ctx context.Context, state *serverState) error {
 	if err := a.client.Get(ctx, "/Sessions", nil, &sessions); err != nil {
 		return fmt.Errorf("load sessions: %w", err)
 	}
+	sessionItems := make([]storage.Keyed, 0, len(sessions))
 	for _, session := range sessions {
 		if session.SupportsRemoteControl {
 			deviceID := "player-" + stableID(first(session.DeviceID, session.ID))
@@ -109,11 +111,14 @@ func (a *App) syncSessions(ctx context.Context, state *serverState) error {
 		}
 		item := mediaItem(state.ID, "", *session.NowPlayingItem)
 		ref := item.Ref
-		sessionEntity := a.healthyEntity(domain.Entity{ID: "session-" + stableID(session.ID), Plugin: PluginID, DeviceID: state.ID, Type: "media_session", Name: first(session.NowPlayingItem.Name, session.DeviceName, "Jellyfin session"), State: domain.MediaSession{ServerID: state.ID, PlayerID: session.DeviceID, User: session.UserName, Item: &ref, Title: session.NowPlayingItem.Name, State: playbackState(session), PositionMS: ticksToMS(session.PlayState.PositionTicks), DurationMS: ticksToMS(session.NowPlayingItem.RunTimeTicks)}})
-		if err := a.store.Save(sessionEntity); err != nil {
-			return fmt.Errorf("save session: %w", err)
-		}
+		playerID := "player-" + stableID(first(session.DeviceID, session.ID))
+		playerRef := PluginID + "." + playerID + ".player"
+		sessionEntity := a.healthyEntity(domain.Entity{ID: "session-" + stableID(session.ID), Plugin: PluginID, DeviceID: state.ID, Type: "media_session", Name: first(session.NowPlayingItem.Name, session.DeviceName, "Jellyfin session"), State: domain.MediaSession{ServerID: state.ID, PlayerID: playerRef, User: session.UserName, Item: &ref, Title: session.NowPlayingItem.Name, State: playbackState(session), PositionMS: ticksToMS(session.PlayState.PositionTicks), DurationMS: ticksToMS(session.NowPlayingItem.RunTimeTicks)}})
+		sessionItems = append(sessionItems, sessionEntity)
 		state.Entities[sessionEntity.Key()] = domain.EntityKey{Plugin: PluginID, DeviceID: state.ID, ID: sessionEntity.ID}
+	}
+	if _, err := storage.ReconcileSnapshot(a.store, storage.Snapshot{Pattern: PluginID + "." + state.ID + ".session-*", Items: sessionItems, OnMissing: storage.MissingDelete}); err != nil {
+		return fmt.Errorf("reconcile sessions: %w", err)
 	}
 	return nil
 }
