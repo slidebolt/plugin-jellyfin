@@ -1,0 +1,10 @@
+/.env
+/.env.*
+!/.env.example
+/.testlogs/
+/dist/
+/plugin-jellyfin
+*.test
+*.out
+coverage.*
+test.local.*
