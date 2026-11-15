@@ -66,10 +66,12 @@ func TestBrowseArtworkAndResolve(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.URL.Path == "/Items":
+			if r.URL.Query().Get("Ids") == "item-1" {
+				writeJSON(w, jellyfin.Items{Items: []jellyfin.Item{{ID: "item-1", Name: "Example", Type: "Movie", MediaType: "Video", ImageTags: map[string]string{"Primary": "tag"}, BackdropImageTags: []string{"backdrop"}, MediaSources: []jellyfin.MediaSource{{ID: "source-1", Container: "mkv"}}}}, TotalRecordCount: 1})
+				return
+			}
 			listQuery = r.URL.Query()
 			writeJSON(w, jellyfin.Items{Items: []jellyfin.Item{{ID: "item-1", Name: "Example", Type: "Movie", MediaType: "Video", RunTimeTicks: 20000, ImageTags: map[string]string{"Primary": "tag"}, MediaSources: []jellyfin.MediaSource{{ID: "source-1", Container: "mkv"}}}}, TotalRecordCount: 2})
-		case r.URL.Path == "/Items/item-1":
-			writeJSON(w, jellyfin.Item{ID: "item-1", Name: "Example", Type: "Movie", MediaType: "Video", ImageTags: map[string]string{"Primary": "tag"}, BackdropImageTags: []string{"backdrop"}, MediaSources: []jellyfin.MediaSource{{ID: "source-1", Container: "mkv"}}})
 		case r.URL.Path == "/Items/item-1/Images/Primary":
 			w.Header().Set("Content-Type", "image/jpeg")
 			_, _ = w.Write([]byte("jpeg"))

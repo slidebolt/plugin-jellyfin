@@ -145,15 +145,15 @@ func (a *App) loadItem(ctx context.Context, id string) (jellyfin.Item, error) {
 	if strings.TrimSpace(id) == "" {
 		return jellyfin.Item{}, fmt.Errorf("media item ID is required")
 	}
-	var item jellyfin.Item
-	q := url.Values{"Fields": {"Overview,Genres,ProviderIds,MediaSources,PremiereDate,SortName"}}
-	if err := a.client.Get(ctx, "/Items/"+url.PathEscape(id), q, &item); err != nil {
+	var result jellyfin.Items
+	q := url.Values{"Ids": {id}, "Limit": {"1"}, "Fields": {"Overview,Genres,ProviderIds,MediaSources,PremiereDate,SortName"}}
+	if err := a.client.Get(ctx, "/Items", q, &result); err != nil {
 		return jellyfin.Item{}, err
 	}
-	if item.ID == "" {
+	if len(result.Items) == 0 || result.Items[0].ID == "" {
 		return jellyfin.Item{}, fmt.Errorf("media item not found")
 	}
-	return item, nil
+	return result.Items[0], nil
 }
 
 func mediaItem(serverID, libraryID string, item jellyfin.Item) media.MediaItem {
