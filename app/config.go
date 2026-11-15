@@ -1,11 +1,14 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 	"time"
 )
+
+var errNotConfigured = errors.New("Jellyfin is not configured")
 
 type config struct {
 	URL     string
@@ -15,6 +18,9 @@ type config struct {
 
 func loadConfig() (config, error) {
 	c := config{URL: strings.TrimSpace(os.Getenv("JELLYFIN_URL")), Token: strings.TrimSpace(os.Getenv("JELLYFIN_TOKEN")), Refresh: 30 * time.Second}
+	if c.URL == "" && c.Token == "" {
+		return config{}, errNotConfigured
+	}
 	if raw := strings.TrimSpace(os.Getenv("JELLYFIN_REFRESH_INTERVAL")); raw != "" {
 		d, err := time.ParseDuration(raw)
 		if err != nil || d <= 0 {

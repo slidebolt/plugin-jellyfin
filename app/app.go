@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -73,6 +74,15 @@ func (a *App) Hello() contract.HelloResponse {
 func (a *App) SetResourceReporter(reporter runtime.ResourceReporter) { a.reporter = reporter }
 
 func (a *App) OnStart(deps map[string]json.RawMessage) (json.RawMessage, error) {
+	config, err := loadConfig()
+	if errors.Is(err, errNotConfigured) {
+		log.Println("plugin-jellyfin: disabled; JELLYFIN_URL and JELLYFIN_TOKEN are not configured")
+		return nil, nil
+	}
+	if err != nil {
+		a.resourceDegraded(err)
+		return nil, err
+	}
 	msg, err := messenger.Connect(deps)
 	if err != nil {
 		return nil, fmt.Errorf("connect messenger: %w", err)
@@ -82,13 +92,7 @@ func (a *App) OnStart(deps map[string]json.RawMessage) (json.RawMessage, error) 
 		msg.Close()
 		return nil, fmt.Errorf("connect storage: %w", err)
 	}
-	a.msg, a.store = msg, store
-	a.config, err = loadConfig()
-	if err != nil {
-		a.resourceDegraded(err)
-		a.closeDependencies()
-		return nil, err
-	}
+	a.msg, a.store, a.config = msg, store, config
 	a.client, err = jellyfin.New(a.config.URL, a.config.Token, 20*time.Second)
 	if err != nil {
 		a.resourceDegraded(err)

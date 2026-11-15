@@ -38,6 +38,26 @@ func TestManifestIsSelfDescribing(t *testing.T) {
 	}
 }
 
+func TestUnconfiguredPluginStartsDisabled(t *testing.T) {
+	t.Setenv("JELLYFIN_URL", "")
+	t.Setenv("JELLYFIN_TOKEN", "")
+	a := New()
+	if _, err := a.OnStart(nil); err != nil {
+		t.Fatalf("unconfigured plugin must remain disabled and ready: %v", err)
+	}
+	if a.msg != nil || a.store != nil || a.client != nil {
+		t.Fatal("disabled plugin retained runtime dependencies")
+	}
+}
+
+func TestPartiallyConfiguredPluginFails(t *testing.T) {
+	t.Setenv("JELLYFIN_URL", "https://jellyfin.example.com")
+	t.Setenv("JELLYFIN_TOKEN", "")
+	if _, err := loadConfig(); err == nil || errors.Is(err, errNotConfigured) {
+		t.Fatalf("partial configuration must fail, got %v", err)
+	}
+}
+
 func TestStableIDBoundsLongProviderIdentifiers(t *testing.T) {
 	long := strings.Repeat("provider-client-identifier-", 20)
 	first := stableID(long)

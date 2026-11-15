@@ -11,6 +11,8 @@ first release.
 
 ## Configuration
 
+When both Jellyfin settings are absent, the packaged plugin starts in a disabled state so installations that have not selected it remain healthy. Supplying only one required setting is an error.
+
 - `JELLYFIN_URL` — Jellyfin server base URL.
 - `JELLYFIN_TOKEN` — Jellyfin API token.
 - `JELLYFIN_REFRESH_INTERVAL` — inventory/session refresh interval (default `30s`).
