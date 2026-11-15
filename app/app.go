@@ -61,7 +61,7 @@ func (a *App) Hello() contract.HelloResponse {
 	setup.Resources = []contract.ExternalResourceDefinition{{
 		ID: jellyfinServerResource, Kind: contract.ExternalResourceService, Name: "Jellyfin server",
 		Description: "Supplies media libraries, catalog items, artwork, playback streams, sessions, and player controls.",
-		Fields:      []string{"url", "token", "refresh_interval"}, Activation: contract.ResourceActivation{Mode: contract.ResourceActivationAlways},
+		Fields:      []string{"url", "token", "refresh_interval"}, Activation: contract.ResourceActivation{Mode: contract.ResourceActivationConfigured, Fields: []string{"url", "token"}},
 	}}
 	return contract.HelloResponse{
 		ID: PluginID, Kind: contract.KindPlugin, ContractVersion: contract.ContractVersion,

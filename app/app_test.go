@@ -29,6 +29,9 @@ func TestManifestIsSelfDescribing(t *testing.T) {
 	if len(h.Setup.Resources) != 1 || h.Setup.Resources[0].ID != jellyfinServerResource {
 		t.Fatalf("resources = %+v", h.Setup.Resources)
 	}
+	if h.Setup.Resources[0].Activation.Mode != contract.ResourceActivationConfigured {
+		t.Fatalf("Jellyfin resource must activate only when configured: %+v", h.Setup.Resources[0].Activation)
+	}
 	fields := map[string]contract.SetupField{}
 	for _, f := range h.Setup.Fields {
 		fields[f.Key] = f
