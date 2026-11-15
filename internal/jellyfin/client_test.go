@@ -2,6 +2,7 @@ package jellyfin
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -68,5 +69,15 @@ func TestDirectStreamURL(t *testing.T) {
 	}
 	if u.Query().Get("Static") != "true" || u.Query().Get("MediaSourceId") != "source id" || u.Query().Get("api_key") != "secret" {
 		t.Fatalf("query = %v", u.Query())
+	}
+}
+
+func TestMediaFoldersDecodeJellyfinIDField(t *testing.T) {
+	var libraries Libraries
+	if err := json.Unmarshal([]byte(`{"Items":[{"Id":"library-id","Name":"Movies","CollectionType":"movies"}]}`), &libraries); err != nil {
+		t.Fatal(err)
+	}
+	if len(libraries.Items) != 1 || libraries.Items[0].ID != "library-id" {
+		t.Fatalf("libraries = %+v", libraries)
 	}
 }

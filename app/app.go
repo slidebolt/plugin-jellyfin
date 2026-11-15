@@ -187,11 +187,11 @@ func stableID(value string) string {
 			b.WriteByte('-')
 		}
 	}
-	if id := strings.Trim(b.String(), "-"); id != "" {
+	if id := strings.Trim(b.String(), "-"); id != "" && len(id) <= 64 {
 		return id
 	}
 	h := sha256.Sum256([]byte(value))
-	return hex.EncodeToString(h[:8])
+	return "id-" + hex.EncodeToString(h[:8])
 }
 
 func (a *App) state() *serverState { a.mu.RLock(); defer a.mu.RUnlock(); return a.server }

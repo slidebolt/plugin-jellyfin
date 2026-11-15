@@ -7,7 +7,7 @@ type SystemInfo struct {
 }
 
 type Library struct {
-	ID             string `json:"ItemId"`
+	ID             string `json:"Id"`
 	Name           string `json:"Name"`
 	CollectionType string `json:"CollectionType"`
 }

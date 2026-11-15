@@ -38,6 +38,14 @@ func TestManifestIsSelfDescribing(t *testing.T) {
 	}
 }
 
+func TestStableIDBoundsLongProviderIdentifiers(t *testing.T) {
+	long := strings.Repeat("provider-client-identifier-", 20)
+	first := stableID(long)
+	if len(first) > 64 || first != stableID(long) || !strings.HasPrefix(first, "id-") {
+		t.Fatalf("unstable or unbounded ID %q", first)
+	}
+}
+
 func TestMediaItemNormalization(t *testing.T) {
 	item := jellyfin.Item{ID: "episode-id", ParentID: "season-id", Name: "Pilot", Type: "Episode", SeriesName: "Example Show", ParentIndexNumber: 1, IndexNumber: 2, RunTimeTicks: 900000, ProductionYear: 2020, ImageTags: map[string]string{"Primary": "x"}, BackdropImageTags: []string{"y"}}
 	got := mediaItem("server", "library", item)
