@@ -45,7 +45,7 @@ func (a *App) Browse(req media.CatalogRequest) media.CatalogPage {
 		"Fields":       {"Overview,Genres,ProviderIds,MediaSources,PremiereDate,SortName"},
 		"EnableImages": {"true"}, "EnableUserData": {"true"},
 	}
-	if req.ParentID == "" {
+	if req.ParentID != "" && strings.EqualFold(req.Kind, "episode") {
 		q.Set("Recursive", "true")
 	} else {
 		q.Set("Recursive", "false")

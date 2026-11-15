@@ -115,6 +115,10 @@ func TestBrowseArtworkAndResolve(t *testing.T) {
 	if listQuery.Get("ParentId") != "season" || listQuery.Get("Recursive") != "false" || listQuery.Get("SearchTerm") != "exam" || listQuery.Get("IncludeItemTypes") != "Movie" {
 		t.Fatalf("query = %v", listQuery)
 	}
+	a.Browse(media.CatalogRequest{ServerID: "server", LibraryID: "library", ParentID: "show", Kind: "episode"})
+	if listQuery.Get("ParentId") != "show" || listQuery.Get("Recursive") != "true" || listQuery.Get("IncludeItemTypes") != "Episode" {
+		t.Fatalf("show episode query = %v", listQuery)
+	}
 	art := a.Artwork(media.ArtworkRequest{ServerID: "server", ItemID: "item-1", Kind: "thumbnail"})
 	if art.Error != "" || art.ContentType != "image/jpeg" || string(art.Data) != "jpeg" {
 		t.Fatalf("art = %+v", art)
