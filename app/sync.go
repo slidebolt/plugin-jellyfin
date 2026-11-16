@@ -26,7 +26,7 @@ func (a *App) sync(ctx context.Context) error {
 	}
 	now := time.Now().UTC()
 	current := &serverState{ID: serverID, Info: info, Libraries: map[string]jellyfin.Library{}, Players: map[string]string{}, Entities: map[string]domain.EntityKey{}, Devices: map[string]domain.DeviceKey{}}
-	if err := a.store.Save(a.healthyDevice(domain.Device{ID: serverID, Plugin: PluginID, Class: "media_server", Name: first(info.Name, "Jellyfin"), Entities: []domain.Entity{}})); err != nil {
+	if err := a.store.Save(a.healthyDevice(domain.Device{ID: serverID, Plugin: PluginID, Class: "media_server", Name: first(info.Name, "Jellyfin"), SecurityGroups: []string{domain.SecurityGroupMedia}, Entities: []domain.Entity{}})); err != nil {
 		return fmt.Errorf("save server: %w", err)
 	}
 	current.Devices[PluginID+"."+serverID] = domain.DeviceKey{Plugin: PluginID, ID: serverID}
@@ -95,7 +95,7 @@ func (a *App) syncSessions(ctx context.Context, state *serverState) error {
 			deviceID := "player-" + stableID(first(session.DeviceID, session.ID))
 			state.Players[deviceID] = session.ID
 			name := first(session.DeviceName, session.Client, "Jellyfin player")
-			if err := a.store.Save(a.healthyDevice(domain.Device{ID: deviceID, Plugin: PluginID, Class: "media_player", Name: name, Entities: []domain.Entity{}})); err != nil {
+			if err := a.store.Save(a.healthyDevice(domain.Device{ID: deviceID, Plugin: PluginID, Class: "media_player", Name: name, SecurityGroups: []string{domain.SecurityGroupMedia}, Entities: []domain.Entity{}})); err != nil {
 				return fmt.Errorf("save player: %w", err)
 			}
 			state.Devices[PluginID+"."+deviceID] = domain.DeviceKey{Plugin: PluginID, ID: deviceID}
