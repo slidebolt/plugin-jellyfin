@@ -108,10 +108,10 @@ func (a *App) OnStart(deps map[string]json.RawMessage) (json.RawMessage, error) 
 	a.ctx, a.cancel = context.WithCancel(context.Background())
 	if err := a.sync(a.ctx); err != nil {
 		a.resourceDegraded(err)
-		a.closeDependencies()
-		return nil, fmt.Errorf("initial Jellyfin sync: %w", err)
+		log.Printf("plugin-jellyfin: initial sync unavailable; continuing in degraded state: %v", err)
+	} else {
+		a.resourceReady()
 	}
-	a.resourceReady()
 	a.cmds = messenger.NewCommands(msg, domain.LookupCommand)
 	sub, err := a.cmds.Receive(PluginID+".>", a.handleCommand)
 	if err != nil {

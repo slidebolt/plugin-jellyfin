@@ -7,7 +7,7 @@ require (
 	github.com/slidebolt/sb-domain v1.0.27
 	github.com/slidebolt/sb-media-sdk v1.0.5
 	github.com/slidebolt/sb-messenger-sdk v1.0.9
-	github.com/slidebolt/sb-runtime v1.0.9
+	github.com/slidebolt/sb-runtime v1.0.10
 	github.com/slidebolt/sb-storage-sdk v1.0.9
 )
 
